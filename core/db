@@ -1,1 +1,16 @@
-Hoje eu to estudando a aula!
+{
+  "todos": [
+    {
+      "id": "68603ca8-404e-4cd0-acd8-b2241a67d2fb",
+      "date": "2023-11-19T19:18:48.868Z",
+      "content": "Primeira TODO",
+      "done": false
+    },
+    {
+      "id": "65a8fade-3c80-40d0-93e5-d9097dfcc785",
+      "date": "2023-11-19T19:18:48.869Z",
+      "content": "Atualizada!",
+      "done": false
+    }
+  ]
+}
