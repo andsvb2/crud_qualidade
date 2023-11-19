@@ -1,0 +1,17 @@
+{
+  "name": "crud_qualidade",
+  "version": "1.0.0",
+  "description": "Projeto criando um CRUD com qualidade!",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./core/crud.js",
+    "dev": "nodemon ./core/crud.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
