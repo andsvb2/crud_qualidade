@@ -3,8 +3,6 @@ import { v4 as uuid } from "uuid";
 // const fs = require("fs"); - CommonJS
 const DB_FILE_PATH = "./core/db";
 
-console.log("[CRUD]");
-
 type UUID = string;
 
 interface Todo {
@@ -37,7 +35,7 @@ function create(content: string): Todo {
   return todo;
 }
 
-function read(): Array<Todo> {
+export function read(): Array<Todo> {
   const dbString = fs.readFileSync(DB_FILE_PATH, "utf-8");
   const db = JSON.parse(dbString || "{}");
   if (!db.todos) {
@@ -105,14 +103,3 @@ function deleteById(id: UUID) {
 function CLEAR_DB() {
   fs.writeFileSync(DB_FILE_PATH, "");
 }
-
-// [SIMULATION]
-CLEAR_DB();
-create("Primeira TODO");
-const secondTodo = create("Segunda TODO");
-deleteById(secondTodo.id);
-const thirdTodo = create("Terceira Todo");
-updateContentById(thirdTodo.id, "Atualizada!");
-const todos = read();
-console.log(todos);
-console.log(todos.length);

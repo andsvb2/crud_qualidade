@@ -1,10 +1,41 @@
 import React from "react";
 import { GlobalStyles } from "@ui/theme/GlobalStyles";
+import { todoController } from "@ui/controller/todo";
 
 // const bg = "https://mariosouto.com/cursos/crudcomqualidade/bg";
 const bg = "/bg.jpeg"; // inside public folder
 
+interface HomeTodo {
+  id: string;
+  content: string;
+  done: boolean;
+}
+
 export default function HomePage() {
+  const [initialLoadComplete, setInititialLoadComplete] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [totalPages, setTotalPages] = React.useState(0);
+  const [page, setPage] = React.useState(1);
+  const [todos, setTodos] = React.useState<HomeTodo[]>([]);
+
+  const hasMorePages = totalPages > page;
+  const hasNoTodos = todos.length === 0 && !isLoading;
+
+  React.useEffect(() => {
+    setInititialLoadComplete(true);
+    if (!initialLoadComplete) {
+      todoController
+        .get({ page })
+        .then(({ todos, pages }) => {
+          setTodos(todos);
+          setTotalPages(pages);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, []);
+
   return (
     <main>
       <GlobalStyles themeName="red" />
@@ -42,51 +73,74 @@ export default function HomePage() {
           </thead>
 
           <tbody>
-            <tr>
-              <td>
-                <input type="checkbox" />
-              </td>
-              <td>d4f26</td>
-              <td>
-                Conteúdo de uma TODO Lorem ipsum dolor sit amet consectetur
-                adipisicing elit. Eaque vero facilis obcaecati, autem aliquid
-                eius! Consequatur eaque doloribus laudantium soluta optio odit,
-                provident, ab voluptates doloremque voluptas recusandae
-                aspernatur aperiam.
-              </td>
-              <td align="right">
-                <button data-type="delete">Apagar</button>
-              </td>
-            </tr>
+            {todos.map((currentTodo) => {
+              return (
+                <tr key={currentTodo.id}>
+                  <td>
+                    <input type="checkbox" />
+                  </td>
+                  <td>{currentTodo.id.substring(0, 4)}</td>
+                  <td> {currentTodo.content}</td>
+                  <td align="right">
+                    <button data-type="delete">Apagar</button>
+                  </td>
+                </tr>
+              );
+            })}
 
-            <tr>
-              <td colSpan={4} align="center" style={{ textAlign: "center" }}>
-                Carregando...
-              </td>
-            </tr>
+            {isLoading && (
+              <tr>
+                <td colSpan={4} align="center" style={{ textAlign: "center" }}>
+                  Carregando...
+                </td>
+              </tr>
+            )}
 
-            <tr>
-              <td colSpan={4} align="center">
-                Nenhum item encontrado
-              </td>
-            </tr>
+            {hasNoTodos && (
+              <tr>
+                <td colSpan={4} align="center">
+                  Nenhum item encontrado
+                </td>
+              </tr>
+            )}
 
-            <tr>
-              <td colSpan={4} align="center" style={{ textAlign: "center" }}>
-                <button data-type="load-more">
-                  Carregar mais{" "}
-                  <span
-                    style={{
-                      display: "inline-block",
-                      marginLeft: "4px",
-                      fontSize: "1.2em",
+            {hasMorePages && (
+              <tr>
+                <td colSpan={4} align="center" style={{ textAlign: "center" }}>
+                  <button
+                    data-type="load-more"
+                    onClick={() => {
+                      setIsLoading(true);
+                      const nextPage = page + 1;
+                      setPage(nextPage);
+
+                      todoController
+                        .get({ page: nextPage })
+                        .then(({ todos, pages }) => {
+                          setTodos((oldTodos) => {
+                            return [...oldTodos, ...todos];
+                          });
+                          setTotalPages(pages);
+                        })
+                        .finally(() => {
+                          setIsLoading(false);
+                        });
                     }}
                   >
-                    ↓
-                  </span>
-                </button>
-              </td>
-            </tr>
+                    Página {page}, Carregar mais{" "}
+                    <span
+                      style={{
+                        display: "inline-block",
+                        marginLeft: "4px",
+                        fontSize: "1.2em",
+                      }}
+                    >
+                      ↓
+                    </span>
+                  </button>
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </section>
