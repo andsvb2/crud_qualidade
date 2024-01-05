@@ -12,18 +12,23 @@ interface HomeTodo {
 }
 
 export default function HomePage() {
-  const [initialLoadComplete, setInititialLoadComplete] = React.useState(false);
+  const initialLoadComplete = React.useRef(false);
   const [isLoading, setIsLoading] = React.useState(true);
   const [totalPages, setTotalPages] = React.useState(0);
   const [page, setPage] = React.useState(1);
   const [todos, setTodos] = React.useState<HomeTodo[]>([]);
+  const [search, setSearch] = React.useState("");
 
   const hasMorePages = totalPages > page;
   const hasNoTodos = todos.length === 0 && !isLoading;
 
+  const homeTodos = todoController.filterTodosByContent<HomeTodo>(
+    search,
+    todos,
+  );
+
   React.useEffect(() => {
-    setInititialLoadComplete(true);
-    if (!initialLoadComplete) {
+    if (!initialLoadComplete.current) {
       todoController
         .get({ page })
         .then(({ todos, pages }) => {
@@ -32,6 +37,7 @@ export default function HomePage() {
         })
         .finally(() => {
           setIsLoading(false);
+          initialLoadComplete.current = true;
         });
     }
   }, []);
@@ -57,7 +63,13 @@ export default function HomePage() {
 
       <section>
         <form>
-          <input type="text" placeholder="Filtrar lista atual, ex: Dentista" />
+          <input
+            type="text"
+            placeholder="Filtrar lista atual, ex: Dentista"
+            onChange={function handleSearch(event) {
+              setSearch(event.target.value);
+            }}
+          />
         </form>
 
         <table border={1}>
@@ -73,7 +85,7 @@ export default function HomePage() {
           </thead>
 
           <tbody>
-            {todos.map((currentTodo) => {
+            {homeTodos.map((currentTodo) => {
               return (
                 <tr key={currentTodo.id}>
                   <td>
